@@ -2,7 +2,6 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { useState } from 'react';
-import { Dialog } from '@reach/dialog'
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
 
 
@@ -16,7 +15,12 @@ type TDataList_User = {
 
 }
 
-export const getStaticProps: GetStaticProps<{ dataList_User: TDataList_User[] }> = async (content) => {
+
+interface IGetStaticProps{
+  dataList_User: TDataList_User[]
+}
+
+export const getStaticProps: GetStaticProps<IGetStaticProps> = async (/**content */) => {
   const _res = await fetch('https://reqres.in/api/users')
   const _data: any = await _res.json()
   console.log('_data: ', _data);
@@ -26,14 +30,14 @@ export const getStaticProps: GetStaticProps<{ dataList_User: TDataList_User[] }>
   return {
     props: {
       dataList_User: data,
-    }
+    } as IGetStaticProps
   }
 
 }
 
 export default function Home({ dataList_User }: InferGetStaticPropsType<typeof getStaticProps>) {
 
-  const [data_canShow, setData_canShow] = useState<boolean>(false)
+  const [data_canShow, setData_canShow] = useState<boolean>(false) //
 
 
   return (
@@ -46,15 +50,15 @@ export default function Home({ dataList_User }: InferGetStaticPropsType<typeof g
 
       <main className={styles.main}>
 
-<section>
-  {
-    dataList_User.map((_item, index) => {
-      return (
-        <p key={index}>{ _item.first_name}&nbsp;{_item.last_name}</p>
-      )
-    })
-  }
-</section>
+      <section>
+        {
+          dataList_User.map((_item, index) => {
+            return (
+              <p key={index}>{ _item.first_name}&nbsp;{_item.last_name}</p>
+            )
+          })
+        }
+      </section>
 <div>
       Hello world
       <p>scoped!</p>
@@ -80,7 +84,7 @@ export default function Home({ dataList_User }: InferGetStaticPropsType<typeof g
         <div>
 
           <button
-          className='bg-blue-400 text-white py-1 px-2 rounded'
+          className='px-2 py-1 text-white bg-blue-400 rounded'
           onClick={() => {
             setData_canShow(!data_canShow)
           }}>按我</button>
