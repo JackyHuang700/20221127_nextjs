@@ -1,7 +1,7 @@
 import { GetStaticProps, GetStaticPaths } from "next"
 import { useState } from "react"
 import PostInfo from "../../components/postInfo/postInfo"
-import { IPost, IAsdeee } from "../../types"
+import { IPost, IAsdeee } from "../../src/types"
 
 
 interface IParams{

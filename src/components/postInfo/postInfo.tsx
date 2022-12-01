@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IAsdeee } from "../../types";
+import { IAsdeee } from "../../src/types";
 
 function PostInfo({ post, setData_post }: IAsdeee) {
 
