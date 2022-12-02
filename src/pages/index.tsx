@@ -5,6 +5,9 @@ import { useState } from 'react';
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
 
 
+//
+import Counter from '../components/counter/counter'
+
 type TDataList_User = {
   // name: string
   id: string
@@ -16,7 +19,7 @@ type TDataList_User = {
 }
 
 
-interface IGetStaticProps{
+interface IGetStaticProps {
   dataList_User: TDataList_User[]
 }
 
@@ -51,18 +54,24 @@ export default function Home({ dataList_User }: InferGetStaticPropsType<typeof g
       <main className={styles.main}>
 
       <section>
-        {
-          dataList_User.map((_item, index) => {
-            return (
-              <p key={index}>{ _item.first_name}&nbsp;{_item.last_name}</p>
-            )
-          })
-        }
+        <h3>redux toolkit</h3>
+        <Counter />
       </section>
-<div>
-      Hello world
-      <p>scoped!</p>
-      <style jsx>{`
+
+
+        <section>
+          {
+            dataList_User.map((_item, index) => {
+              return (
+                <p key={index}>{_item.first_name}&nbsp;{_item.last_name}</p>
+              )
+            })
+          }
+        </section>
+        <div>
+          Hello world
+          <p>scoped!</p>
+          <style jsx>{`
         p {
           color: blue;
         }
@@ -75,19 +84,19 @@ export default function Home({ dataList_User }: InferGetStaticPropsType<typeof g
           }
         }
       `}</style>
-      <style global jsx>{`
+          <style global jsx>{`
         body {
           background: black;
         }
       `}</style>
-    </div>
+        </div>
         <div>
 
           <button
-          className='px-2 py-1 text-white bg-blue-400 rounded'
-          onClick={() => {
-            setData_canShow(!data_canShow)
-          }}>按我</button>
+            className='px-2 py-1 text-white bg-blue-400 rounded'
+            onClick={() => {
+              setData_canShow(!data_canShow)
+            }}>按我</button>
         </div>
 
         <h1 className={styles.title}>
