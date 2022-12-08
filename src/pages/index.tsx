@@ -15,11 +15,6 @@ import { setApiStorkGet, setApiStorkStorePost } from '../composables/useApi'
 
 export const getStaticProps: GetStaticProps<IIResponse> = async (/**content */) => {
 
-  // const _res = await fetch('https://fakestoreapi.com/products/1')
-  // const _limit = 50
-  // const _res = await fetch(`http://192.168.10.233:12388/api/stork?limit=${_limit}&page=1`)
-  // const _data: IResponse = await _res.json()
-
   const {
     response,
   } = await setApiStorkGet({})
@@ -35,17 +30,6 @@ export const getStaticProps: GetStaticProps<IIResponse> = async (/**content */) 
 
 
 const Home = ({ items, pagination }: InferGetStaticPropsType<typeof getStaticProps>) => {
-
-  // useEffect(() => {
-  //   (async () => {
-  //     const _res = await fetch('http://192.168.10.233:12388/api/stork?limit=1&page=1')
-  //   const _data: IResponse = await _res.json()
-  //   console.log('_data_data_data_data_data: ', _data);
-  //   })()
-
-  // }, [])
-
-  // const [api, contextHolder] = notification.useNotification()
 
   /** 資料 */
   const [dataList_item, setDataList_item] = useState<Item[]>(items)
@@ -90,50 +74,55 @@ const Home = ({ items, pagination }: InferGetStaticPropsType<typeof getStaticPro
   const [uniteChange, setUniteChange] = useState<number>(1)
 
 
+
+  const onClick2 = async () => {
+
+
+    //關閉按鈕
+    setBtn_save(btn => {
+      const _btn = { ...btn }
+      _btn.disabled = true
+      return _btn
+    })
+    debugger
+
+    const { status, message } = await setApiStorkStorePost({
+      quantity: `${uniteChange}`,
+    })
+
+    //開啟按鈕
+    setBtn_save(btn => {
+      const _btn = { ...btn }
+      _btn.disabled = false
+      return _btn
+    })
+
+
+    // 驗證失敗
+    if (!status) {
+      notification.error({
+        message: `訊息`,
+        description: message,
+      });
+      return
+    }
+
+
+    notification.success({
+      message: `訊息`,
+      description: message,
+    })
+
+
+  }
+
+
   /** btn - 儲存按鈕 */
   const [btn_save, setBtn_save] = useState<IButton>({
     text: '更改數量',
     type: 'primary',
     // class: '',
-    onClick: async () => {
-
-
-      //關閉按鈕
-      setBtn_save(btn => {
-        const _btn = { ...btn }
-        _btn.disabled = true
-        return _btn
-      })
-
-      const { status, message } = await setApiStorkStorePost({
-        quantity: `${uniteChange}`,
-      })
-
-      //開啟按鈕
-      setBtn_save(btn => {
-        const _btn = { ...btn }
-        _btn.disabled = false
-        return _btn
-      })
-
-
-      // 驗證失敗
-      if (!status) {
-        notification.error({
-          message: `訊息`,
-          description: message,
-        });
-        return
-      }
-
-
-      notification.success({
-        message: `訊息`,
-        description: message,
-      })
-
-
-    },
+    onClick: async () => { },
     disabled: false,
     // disabled: (uniteChange === -1 ? true : false),
   })
@@ -152,7 +141,6 @@ const Home = ({ items, pagination }: InferGetStaticPropsType<typeof getStaticPro
         return _data
       })
 
-      // const _res = await fetch(`http://192.168.10.233:12388/api/stork?limit=${data_pagination.per_page}&page=${data_pagination.current_page}`)
 
       const {
         response,
@@ -199,12 +187,54 @@ const Home = ({ items, pagination }: InferGetStaticPropsType<typeof getStaticPro
           <p className="mb-0 mr-2 font-bold">統一更改數量</p>
 
           <InputNumber min={0} defaultValue={uniteChange} onChange={(e) => {
-            setUniteChange(e!)
+
+            console.log('e: ', e);
+
+            setUniteChange(data => data = e!)
+            console.log('uniteChange: ', uniteChange);
+
 
           }} className="min-w-[100px] mr-2" />
 
 
-          <Button {...btn_save}>{btn_save.text}</Button>
+          <Button {...btn_save} onClick={async () => {
+            //關閉按鈕
+            setBtn_save(btn => {
+              const _btn = { ...btn }
+              _btn.disabled = true
+              return _btn
+            })
+
+
+            const { status, message } = await setApiStorkStorePost({
+              quantity: `${uniteChange}`,
+            })
+
+            //開啟按鈕
+            setBtn_save(btn => {
+              const _btn = { ...btn }
+              _btn.disabled = false
+              return _btn
+            })
+
+
+            // 驗證失敗
+            if (!status) {
+              notification.error({
+                message: `訊息`,
+                description: message,
+              });
+              return
+            }
+
+
+            notification.success({
+              message: `訊息`,
+              description: message,
+            })
+
+
+          }}>{btn_save.text}</Button>
 
         </section>
 

@@ -61,6 +61,8 @@ export const setApiStorkUpdatePatch = (params: {
   /** 數量 */
   quantity: string
 }): Promise<IResponse> => {
+
+  console.log('quantity: ', params.quantity);
   return new Promise(async (resolve, reject) => {
     const _res = await fetch("http://192.168.10.233:12388/api/stork/store", {
       method: "POST",

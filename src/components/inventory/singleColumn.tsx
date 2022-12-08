@@ -8,9 +8,6 @@ export default function SingleColumn(item: Item) {
 
   const { Column } = Table;
 
-
-
-
   return (
     <Table dataSource={item.variations}
       pagination={false}
