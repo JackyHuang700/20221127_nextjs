@@ -1,85 +1,268 @@
-import type { NextPage } from 'next'
+import type { GetStaticProps, InferGetStaticPropsType } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
+import {
+  Button,
+  InputNumber,
+  Table,
+  notification,
+} from 'antd'
+import { useState, useEffect } from 'react'
+import SingleColumn from '../components/inventory/singleColumn'
+import { IButton, IResponse, Item, Pagination, ITable, IIResponse } from '../types'
+import { setApiStorkGet, setApiStorkStorePost } from '../composables/useApi'
 
-const Home: NextPage = () => {
+/** */
+
+export const getStaticProps: GetStaticProps<IIResponse> = async (/**content */) => {
+
+  // const _res = await fetch('https://fakestoreapi.com/products/1')
+  // const _limit = 50
+  // const _res = await fetch(`http://192.168.10.233:12388/api/stork?limit=${_limit}&page=1`)
+  // const _data: IResponse = await _res.json()
+
+  const {
+    response,
+  } = await setApiStorkGet({})
+
+  console.log('_data: ', response);
+
+
+  return {
+    props: response
+  }
+
+}
+
+
+const Home = ({ items, pagination }: InferGetStaticPropsType<typeof getStaticProps>) => {
+
+  // useEffect(() => {
+  //   (async () => {
+  //     const _res = await fetch('http://192.168.10.233:12388/api/stork?limit=1&page=1')
+  //   const _data: IResponse = await _res.json()
+  //   console.log('_data_data_data_data_data: ', _data);
+  //   })()
+
+  // }, [])
+
+  // const [api, contextHolder] = notification.useNotification()
+
+  /** 資料 */
+  const [dataList_item, setDataList_item] = useState<Item[]>(items)
+
+  /** */
+  const [data_pagination, setData_pagination] = useState<Pagination>(pagination)
+
+
+  /** */
+  const { Column, ColumnGroup } = Table;
+
+
+  /** */
+  const [table, setTable] = useState<ITable>({
+    class: 'w-full',
+    loading: false,
+    onChange: async (pagination /**,filters, sorter, extra */) => {
+      console.log('pagination: ', pagination);
+
+
+
+      /** 設定分頁 */
+      setData_pagination(data => {
+        const _data = { ...data }
+
+        _data.current_page = pagination.current!
+        return _data
+      })
+
+
+
+
+    },
+    pagination: {
+      defaultCurrent: 1,
+      total: pagination.total_count,
+    }
+  })
+
+
+  /** 統一更改 */
+  const [uniteChange, setUniteChange] = useState<number>(1)
+
+
+  /** btn - 儲存按鈕 */
+  const [btn_save, setBtn_save] = useState<IButton>({
+    text: '更改數量',
+    type: 'primary',
+    // class: '',
+    onClick: async () => {
+
+
+      //關閉按鈕
+      setBtn_save(btn => {
+        const _btn = { ...btn }
+        _btn.disabled = true
+        return _btn
+      })
+
+      const { status, message } = await setApiStorkStorePost({
+        quantity: `${uniteChange}`,
+      })
+
+      //開啟按鈕
+      setBtn_save(btn => {
+        const _btn = { ...btn }
+        _btn.disabled = false
+        return _btn
+      })
+
+
+      // 驗證失敗
+      if (!status) {
+        notification.error({
+          message: `訊息`,
+          description: message,
+        });
+        return
+      }
+
+
+      notification.success({
+        message: `訊息`,
+        description: message,
+      })
+
+
+    },
+    disabled: false,
+    // disabled: (uniteChange === -1 ? true : false),
+  })
+
+
+
+  /** 切換分頁  */
+  useEffect(() => {
+
+    (async () => {
+
+      // 開啟 loading
+      setTable(data => {
+        const _data = { ...data }
+        _data.loading = true
+        return _data
+      })
+
+      // const _res = await fetch(`http://192.168.10.233:12388/api/stork?limit=${data_pagination.per_page}&page=${data_pagination.current_page}`)
+
+      const {
+        response,
+      } = await setApiStorkGet({
+        limit: data_pagination.per_page,
+        page: data_pagination.current_page,
+      })
+
+
+      // const _data: IResponse = await _res.json()
+      setDataList_item(response.items)
+
+      // 關閉 loading
+      setTable(data => {
+        const _data = { ...data }
+        _data.loading = false
+        return _data
+      })
+
+
+
+    })()
+
+  }, [
+    data_pagination
+  ])
+
+
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
+    <>
+
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>RoShop</title>
       </Head>
+      {/* bg-stone-50 */}
+      <main className='px-[50px] pt-[50px]  h-screen '>
 
-      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+        <section className='flex justify-center items-center mb-6'>
+          <h2 className='font-bold text-2xl'>更改</h2>
+        </section>
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
-            pages/index.tsx
-          </code>
-        </p>
+        <section className='flex justify-start items-center mb-6'>
+          <p className="mb-0 mr-2 font-bold">統一更改數量</p>
 
-        <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
+          <InputNumber min={0} defaultValue={uniteChange} onChange={(e) => {
+            setUniteChange(e!)
+
+          }} className="min-w-[100px] mr-2" />
+
+
+          <Button {...btn_save}>{btn_save.text}</Button>
+
+        </section>
+
+        <section className='flex justify-start items-center'>
+          <Table dataSource={dataList_item}
+            {...table}
+            expandable={{
+              expandedRowRender: (_data) => (
+
+                <SingleColumn {..._data} />
+              ),
+              rowExpandable: (data) => /**data.name !== 'Not Expandable' */true,
+              defaultExpandAllRows: true,
+            }}
           >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and its API.
-            </p>
-          </a>
+            <Column title="名稱"
+              key='title_translations'
+              render={(_: any, data: Item) => (
+                <>
+                  {data.title_translations['zh-hant']}
 
-          <a
-            href="https://nextjs.org/learn"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
+                  {/* <Table dataSource={data.variations}>
+                    <Column title="" key="asdf"
+                      render={(_: any, data2: IVariations) => (
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+                        <>{
+                          data2.fields_translations['zh-hant']
+                        }</>
+                      )}
+                    />
+                  </Table> */}
+                </>
+              )}
+            />
+            <Column title="貨號" dataIndex="lastName" key="lastName" />
+            <Column title="數量" dataIndex="age" key="age" />
+            <Column
+              title="操作"
+              key="action"
+              render={(_: any, data: Item) => (
+
+                <>
+
+                </>
+
+              )
+
+              }
+            />
+          </Table>
+        </section>
+
       </main>
+    </>
 
-      <footer className="flex h-24 w-full items-center justify-center border-t">
-        <a
-          className="flex items-center justify-center gap-2"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-        </a>
-      </footer>
-    </div>
+
+
   )
 }
 

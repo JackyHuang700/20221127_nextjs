@@ -1,5 +1,6 @@
 import '../styles/taildwind.css'
 import '../styles/globals.css'
+import '../styles/antDesign.css'
 
 import type { AppProps } from 'next/app'
 import { Provider } from 'react-redux'

@@ -1,0 +1,14 @@
+:where(.css-dev-only-do-not-override-1ij74fp).ant-btn-primary{
+  @apply bg-[#1677ff]
+}
+
+/** table */
+.ant-table-wrapper {
+  @apply w-full;
+}
+
+
+:where(.css-dev-only-do-not-override-1ij74fp).ant-table-wrapper .ant-table-tbody >tr >td >.ant-table-wrapper:only-child .ant-table{
+  @apply mx-0;
+}
+/** end.table */
